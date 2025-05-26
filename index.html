@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Elegant Quiz Challenge</title>
+<!-- Google Fonts for a modern look -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" />
+<style>
+  /* Reset and base styles */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    color: #333;
+  }
+  h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    color: #fff;
+    text-shadow: 2px 2px 4px #00000050;
+  }
+
+  /* Quiz container styling */
+  .quiz-container {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    max-width: 700px;
+    width: 100%;
+    padding: 30px 40px;
+    margin-top: 20px;
+    position: relative;
+    animation: fadeIn 1s ease-in-out;
+  }
+
+  /* Timer styles */
+  .timer {
+    position: absolute;
+    top: -20px;
+    right: 20px;
+    background: #ff6f61;
+    color: #fff;
+    font-weight: bold;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 1.2em;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+
+  /* Progress / question count */
+  .progress {
+    font-size: 1em;
+    margin-bottom: 20px;
+    color: #555;
+    text-align: center;
+  }
+
+  /* Question styling */
+  .question {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    color: #222;
+  }
+
+  /* Options styling */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  .option-btn {
+    padding: 15px;
+    font-size: 1.1em;
+    border: none;
+    border-radius: 12px;
+    background-color: #fbc02d;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  .option-btn:hover {
+    background-color: #f57c00;
+  }
+
+  /* Correct and incorrect feedback */
+  .option-btn.correct {
+    background-color: #66bb6a !important;
+  }
+  .option-btn.incorrect {
+    background-color: #ef5350 !important;
+  }
+
+  /* Next button styling */
+  .next-btn {
+    margin-top: 25px;
+    align-self: center;
+    padding: 12px 25px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: background 0.3s ease;
+  }
+  .next-btn:hover {
+    background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%);
+  }
+
+  /* Result display */
+  #resultMessage {
+    margin-top: 30px;
+    font-size: 2em;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  /* Footer scrolling text */
+  .footer {
+    margin-top: 30px;
+    width: 100%;
+    background: #4a148c;
+    padding: 10px 0;
+    color: #fff;
+    font-size: 1.1em;
+    overflow: hidden;
+    position: relative;
+  }
+  .marquee {
+    display: inline-block;
+    white-space: nowrap;
+    animation: scroll-left 10s linear infinite;
+  }
+  @keyframes scroll-left {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /* Fade in animation for container */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<h1>Ultimate Quiz Challenge</h1>
+
+<div class="quiz-container" id="quizContainer">
+  <div class="timer" id="timer">00:00</div>
+  <div class="progress" id="progress">Question 1 of 10</div>
+  <div class="question" id="question">Loading questions...</div>
+  <div class="options" id="optionsContainer">
+    <!-- Options will be dynamically inserted here -->
+  </div>
+  <button class="next-btn" id="nextBtn" style="display:none;">Next Question</button>
+  <div id="resultMessage"></div>
+</div>
+
+<div class="footer">
+  <div class="marquee">Welcome to the ultimate quiz! Test your knowledge and have fun! - Artha Education Institute &nbsp; 🚀 &nbsp; Welcome to the ultimate quiz! Test your knowledge and have fun! - Artha Education Institute &nbsp; 🚀</div>
+</div>
+
+<script>
+  // Sample questions array (you can replace or fetch dynamically)
+  const questions = [
+    {
+      question: "What is the capital of France?",
+      options: ["Paris", "London", "Berlin", "Madrid"],
+      answer: "Paris"
+    },
+    {
+      question: "Who wrote 'Hamlet'?",
+      options: ["Charles Dickens", "William Shakespeare", "Leo Tolstoy", "Mark Twain"],
+      answer: "William Shakespeare"
+    },
+    {
+      question: "What is the biggest planet in our Solar System?",
+      options: ["Earth", "Jupiter", "Mars", "Saturn"],
+      answer: "Jupiter"
+    },
+    {
+      question: "Which element has the chemical symbol 'O'?",
+      options: ["Gold", "Oxygen", "Silver", "Iron"],
+      answer: "Oxygen"
+    },
+    {
+      question: "What is the fastest land animal?",
+      options: ["Cheetah", "Lion", "Horse", "Eagle"],
+      answer: "Cheetah"
+    },
+    {
+      question: "Which language is primarily spoken in Brazil?",
+      options: ["Spanish", "Portuguese", "French", "English"],
+      answer: "Portuguese"
+    },
+    {
+      question: "What is the process of water turning into vapor?",
+      options: ["Condensation", "Precipitation", "Evaporation", "Sublimation"],
+      answer: "Evaporation"
+    },
+    {
+      question: "Who painted the Mona Lisa?",
+      options: ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Claude Monet"],
+      answer: "Leonardo da Vinci"
+    },
+    {
+      question: "What is the smallest prime number?",
+      options: ["0", "1", "2", "3"],
+      answer: "2"
+    },
+    {
+      question: "Which country is known as the Land of the Rising Sun?",
+      options: ["China", "Japan", "South Korea", "Thailand"],
+      answer: "Japan"
+    }
+  ];
+
+  let currentQuestionIndex = 0;
+  let selectedOptions = Array(10).fill(null);
+  let score = 0;
+  let timerInterval;
+  let totalTime = 120; // 20 Second for the quiz
+  let timeRemaining = totalTime;
+
+  const questionEl = document.getElementById('question');
+  const optionsContainer = document.getElementById('optionsContainer');
+  const progressEl = document.getElementById('progress');
+  const timerEl = document.getElementById('timer');
+  const nextBtn = document.getElementById('nextBtn');
+  const resultMessage = document.getElementById('resultMessage');
+
+// Shuffle questions to get 10 random questions
+function shuffleQuestions() {
+  for (let i = questions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [questions[i], questions[j]] = [questions[j], questions[i]];
+  }
+}
+shuffleQuestions();
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    if (timeRemaining <= 0) {
+      clearInterval(timerInterval);
+      showResults();
+    } else {
+      timeRemaining--;
+      updateTimer();
+    }
+  }, 1000);
+}
+
+function updateTimer() {
+  const minutes = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+  const seconds = (timeRemaining % 60).toString().padStart(2, '0');
+  timerEl.textContent = `${minutes}:${seconds}`;
+}
+
+function loadQuestion(index) {
+  const q = questions[index];
+  progressEl.textContent = `Question ${index + 1} of 10`;
+  questionEl.textContent = q.question;
+  optionsContainer.innerHTML = '';
+
+  q.options.forEach(option => {
+    const button = document.createElement('button');
+    button.className = 'option-btn';
+    button.textContent = option;
+    button.onclick = () => selectOption(button, option);
+    optionsContainer.appendChild(button);
+  });
+
+  // Hide next button until an answer is selected
+  nextBtn.style.display = 'none';
+  // Reset any previous feedback
+  Array.from(optionsContainer.children).forEach(btn => {
+    btn.classList.remove('correct', 'incorrect');
+    btn.disabled = false;
+  });
+}
+
+function selectOption(btn, option) {
+  // Disable all options after selection
+  Array.from(optionsContainer.children).forEach(b => b.disabled = true);
+
+  const correctAnswer = questions[currentQuestionIndex].answer;
+  if (option === correctAnswer) {
+    btn.classList.add('correct');
+    selectedOptions[currentQuestionIndex] = true;
+  } else {
+    btn.classList.add('incorrect');
+    selectedOptions[currentQuestionIndex] = false;
+    // Highlight the correct answer
+    Array.from(optionsContainer.children).forEach(b => {
+      if (b.textContent === correctAnswer) {
+        b.classList.add('correct');
+      }
+    });
+  }
+  // Show the next button
+  nextBtn.style.display = 'block';
+
+  // Update score
+  if (option === correctAnswer) {
+    score++;
+  }
+}
+
+nextBtn.onclick = () => {
+  currentQuestionIndex++;
+  if (currentQuestionIndex < 10) {
+    loadQuestion(currentQuestionIndex);
+  } else {
+    showResults();
+  }
+};
+
+function showResults() {
+  clearInterval(timerInterval);
+  document.getElementById('quizContainer').innerHTML = `
+    <div id="resultMessage">Your Score: ${score} / 10</div>
+    <p>Thanks for participating! Feel free to try again.</p>
+  `;
+}
+
+// Initialize quiz
+loadQuestion(currentQuestionIndex);
+startTimer();
+updateTimer();
+</script>
+</body>
+</html>
