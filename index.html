@@ -7,6 +7,46 @@
 <!-- Google Fonts for a modern look -->
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" />
 <style>
+  .ad-banner {
+  width: 100%;
+  max-width: 700px;
+  margin: 20px auto;
+  background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%);
+  color: #000;
+  border-radius: 15px;
+  padding: 20px;
+  animation: bounceIn 1.2s ease;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+  @keyframes bounceIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  60% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+
+.ad-content h3 {
+  font-size: 1.3em;
+  margin-bottom: 5px;
+}
+
+.ad-content p {
+  font-size: 1.1em;
+  margin-bottom: 10px;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
   /* Reset and base styles */
   * {
     box-sizing: border-box;
@@ -158,6 +198,15 @@
 <body>
 
 <h1>Ultimate Quiz Challenge</h1>
+<div class="ad-banner">
+  <div class="ad-content">
+    <h3>📞 Call us for IT Courses - Artha Education Institute</h3>
+    <p><strong>Lakshitha Rumesh</strong> - HND Cyber Security and Digital Forensics</p>
+    <hr />
+    <h3>🔬 Science - Sinhala Medium</h3>
+    <p><strong>Shehan Rathnayaka</strong> - Artha Education Institute</p>
+  </div>
+</div>
 
 <div class="quiz-container" id="quizContainer">
   <div class="timer" id="timer">00:00</div>
