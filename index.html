@@ -1,62 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Language Quiz Game</title>
+  <meta charset="UTF-8" />
+  <title>Quiz Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #74ebd5, #ACB6E5);
-      text-align: center;
-      padding: 20px;
+    * {
+      box-sizing: border-box;
     }
-    #quizContainer {
-      display: none;
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(to right, #f9f9f9, #e6f0ff);
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h2 {
+      color: #333;
+    }
+    #quizContainer, #startScreen {
       max-width: 600px;
       margin: auto;
-      background: white;
+      background: #fff;
       padding: 30px;
       border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      animation: fadeIn 1s ease-in-out;
-    }
-    #startScreen {
-      margin-top: 50px;
-      animation: fadeIn 1s ease-in-out;
-    }
-    @keyframes fadeIn {
-      from {opacity: 0;}
-      to {opacity: 1;}
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      margin-top: 40px;
+      transition: all 0.5s ease-in-out;
     }
     .question {
-      font-size: 1.2em;
+      font-size: 1.25rem;
       margin-bottom: 20px;
+      font-weight: bold;
     }
     .option {
-      display: block;
-      padding: 10px;
+      background-color: #f0f0f0;
+      border: none;
       margin: 10px 0;
-      background-color: #eee;
+      padding: 12px;
+      width: 100%;
       border-radius: 10px;
+      font-size: 1rem;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: background-color 0.3s;
     }
     .option:hover {
-      background-color: #d4d4d4;
+      background-color: #e0eaff;
+    }
+    .option.correct {
+      background-color: #b4f3c0 !important;
+      color: #1e6b2d;
+      font-weight: bold;
+    }
+    .option.wrong {
+      background-color: #ffc9c9 !important;
+      color: #800;
     }
     #score, #timer {
-      font-size: 1em;
+      font-size: 1rem;
+      margin-top: 20px;
+      color: #555;
+    }
+    input, select {
+      padding: 10px;
+      font-size: 1rem;
+      width: 80%;
+      margin: 10px auto;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
       margin-top: 20px;
     }
+    button:hover {
+      background-color: #0056b3;
+    }
     #resultMessage {
-      font-size: 1.5em;
+      font-size: 1.5rem;
       margin-top: 20px;
+      color: #333;
     }
     .marquee {
       position: fixed;
       bottom: 0;
       width: 100%;
-      background: #333;
+      background: #111;
       color: white;
       padding: 10px 0;
       font-size: 1em;
@@ -72,38 +107,38 @@
       0% {transform: translateX(0);}
       100% {transform: translateX(-100%);}
     }
-    input, select {
-      padding: 10px;
-      font-size: 1em;
-      margin: 5px;
+    @media (max-width: 600px) {
+      .question {
+        font-size: 1rem;
+      }
+      .option {
+        font-size: 0.95rem;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- Start Screen -->
   <div id="startScreen">
-    <h2>Welcome to the Ultimate Quiz</h2>
-    <p>Please enter your name and select a language:</p>
+    <h2>Welcome to the Quiz!</h2>
+    <p>Please enter your name and select language:</p>
     <input type="text" id="userNameInput" placeholder="Enter your name" />
     <br>
     <select id="languageSelect">
       <option value="en">English</option>
       <option value="si">සිංහල</option>
     </select>
-    <br><br>
+    <br>
     <button onclick="startQuiz()">Start Quiz</button>
   </div>
 
-  <!-- Quiz Container -->
-  <div id="quizContainer">
+  <div id="quizContainer" style="display:none;">
     <div id="question" class="question"></div>
     <div id="options"></div>
     <div id="score"></div>
     <div id="timer"></div>
   </div>
 
-  <!-- Scrolling Footer -->
   <div class="marquee"><span>Artha Education Institute - Katulanda</span></div>
 
   <script>
@@ -111,108 +146,102 @@
       en: [
         { question: "What is the capital of France?", options: ["Paris", "London", "Berlin", "Madrid"], answer: "Paris" },
         { question: "Who wrote 'Hamlet'?", options: ["Charles Dickens", "William Shakespeare", "Leo Tolstoy", "Mark Twain"], answer: "William Shakespeare" },
-        { question: "What is the biggest planet in our Solar System?", options: ["Earth", "Jupiter", "Mars", "Saturn"], answer: "Jupiter" },
-        { question: "Which element has the chemical symbol 'O'?", options: ["Gold", "Oxygen", "Silver", "Iron"], answer: "Oxygen" },
-        { question: "What is the fastest land animal?", options: ["Cheetah", "Lion", "Horse", "Eagle"], answer: "Cheetah" },
-        { question: "Which language is primarily spoken in Brazil?", options: ["Spanish", "Portuguese", "French", "English"], answer: "Portuguese" },
-        { question: "What is the process of water turning into vapor?", options: ["Condensation", "Precipitation", "Evaporation", "Sublimation"], answer: "Evaporation" },
-        { question: "Who painted the Mona Lisa?", options: ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Claude Monet"], answer: "Leonardo da Vinci" },
-        { question: "What is the smallest prime number?", options: ["0", "1", "2", "3"], answer: "2" },
-        { question: "Which country is known as the Land of the Rising Sun?", options: ["China", "Japan", "South Korea", "Thailand"], answer: "Japan" }
+        { question: "What is the biggest planet?", options: ["Earth", "Jupiter", "Mars", "Saturn"], answer: "Jupiter" },
+        { question: "What is H2O?", options: ["Oxygen", "Hydrogen", "Water", "Salt"], answer: "Water" },
+        { question: "What color are bananas?", options: ["Green", "Yellow", "Red", "Blue"], answer: "Yellow" }
       ],
       si: [
-        { question: "ප්‍රංශයේ මූල්‍ය අගනුවර කුමක්ද?", options: ["පැරීසිය", "ලන්ඩනය", "බර්ලින්", "මැඩ්රිඩ්"], answer: "පැරීසිය" },
+        { question: "ප්‍රංශයේ මූලස්ථානය කුමක්ද?", options: ["පැරීසිය", "ලන්ඩනය", "බර්ලින්", "මැඩ්රිඩ්"], answer: "පැරීසිය" },
         { question: "'හැම්ලට්' කවිය ලියූයේ කවුද?", options: ["චාල්ස් ඩිකන්ස්", "වියමම් ශේක්ස්පියර්", "ලියෝ ටෝල්ස්ටෝයි", "මාක් ට්වෙයින්"], answer: "වියමම් ශේක්ස්පියර්" },
-        { question: "අපගේ සූර්ය මණ්ඩලයේ විශාලතම ග්‍රහලෝකය කුමක්ද?", options: ["පෘථිවිය", "ජුපිටරය", "අඟහරුවා", "ශනිය"], answer: "ජුපිටරය" },
-        { question: "'O' රසායන ලකුණු ඇති මූලද්‍රව්‍යය කුමක්ද?", options: ["රන්", "ඔක්සිජන්", "රිදී", "යස"], answer: "ඔක්සිජන්" },
-        { question: "වැඩියෙන් දුවන භූමියේ සතුන් අතර වේගවත්ම සතුන් කවුරුන්ද?", options: ["සීතා", "සිංහයා", "අශ්වයා", "ඇගලය"], answer: "සීතා" },
-        { question: "බ්‍රසීලයේ ප්‍රධාන භාෂාව කුමක්ද?", options: ["ස්පාඤ්ඤ භාෂාව", "පෘතුගීසි භාෂාව", "ප්‍රංශ භාෂාව", "ඉංග්‍රීසි භාෂාව"], answer: "පෘතුගීසි භාෂාව" },
-        { question: "ජලය වාෂ්ප බවට පරිවර්තනය වීමේ ක්‍රියාවලිය කුමක්ද?", options: ["සංඝනය", "වැසි වීම", "වාෂ්පීකරණය", "උෂ්ණ sublimation"], answer: "වාෂ්පීකරණය" },
-        { question: "මෝනා ලිසා චිත්‍රය ඇඳුවේ කවුද?", options: ["වින්සෙන්ට් වෑන් ගෝ", "පාබ්ලෝ පිකාසෝ", "ලියොනඩෝ ඩාවින්චි", "ක්ලෝඩ් මොනේ"], answer: "ලියොනඩෝ ඩාවින්චි" },
-        { question: "කුඩාම ප්‍රාථමික සංඛ්‍යාව කුමක්ද?", options: ["0", "1", "2", "3"], answer: "2" },
-        { question: "උදයවන සූර්යයාගේ රට ලෙස හැඳින්වෙන්නේ කුමක්ද?", options: ["චීනය", "ජපානය", "දකුණු කොරියාව", "තායිලන්තය"], answer: "ජපානය" }
+        { question: "විශාලතම ග්‍රහලෝකය කුමක්ද?", options: ["පෘථිවිය", "ජුපිටරය", "අඟහරුවා", "ශනිය"], answer: "ජුපිටරය" },
+        { question: "H2O යනු කුමක්ද?", options: ["ඔක්සිජන්", "ජලාණු", "ජලය", "ලුණු"], answer: "ජලය" },
+        { question: "කෙසෙල් පැහැය කුමක්ද?", options: ["කොළ", "කහ", "රතු", "නිල"], answer: "කහ" }
       ]
     };
 
     let questions = [];
-    let currentQuestionIndex = 0;
+    let currentIndex = 0;
     let score = 0;
-    let timer = 60;
-    let timerInterval;
     let userName = "";
-    let language = "en";
+    let timer = 60;
+    let interval;
 
     function startQuiz() {
       userName = document.getElementById("userNameInput").value.trim();
-      language = document.getElementById("languageSelect").value;
+      const lang = document.getElementById("languageSelect").value;
+      if (!userName) return alert("Please enter your name.");
 
-      if (!userName) {
-        alert("Please enter your name.");
-        return;
-      }
-
-      questions = [...allQuestions[language]];
-      shuffleQuestions();
+      questions = shuffle([...allQuestions[lang]]).slice(0, 10);
       document.getElementById("startScreen").style.display = "none";
       document.getElementById("quizContainer").style.display = "block";
-      loadQuestion(currentQuestionIndex);
+      score = 0;
+      currentIndex = 0;
+      loadQuestion();
       startTimer();
     }
 
-    function shuffleQuestions() {
-      for (let i = questions.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [questions[i], questions[j]] = [questions[j], questions[i]];
-      }
-      questions = questions.slice(0, 10);
-    }
-
-    function loadQuestion(index) {
-      const q = questions[index];
-      document.getElementById("question").textContent = `Q${index + 1}: ${q.question}`;
+    function loadQuestion() {
+      const q = questions[currentIndex];
+      document.getElementById("question").textContent = `Q${currentIndex + 1}: ${q.question}`;
       const optionsDiv = document.getElementById("options");
       optionsDiv.innerHTML = "";
-      q.options.forEach(option => {
-        const btn = document.createElement("div");
-        btn.textContent = option;
+      q.options.forEach(opt => {
+        const btn = document.createElement("button");
         btn.className = "option";
-        btn.onclick = () => checkAnswer(option);
+        btn.textContent = opt;
+        btn.onclick = () => checkAnswer(btn, opt);
         optionsDiv.appendChild(btn);
       });
       document.getElementById("score").textContent = `Score: ${score}`;
     }
 
-    function checkAnswer(selectedOption) {
-      if (selectedOption === questions[currentQuestionIndex].answer) {
-        score++;
-      }
-      currentQuestionIndex++;
-      if (currentQuestionIndex < questions.length) {
-        loadQuestion(currentQuestionIndex);
-      } else {
-        showResults();
-      }
+    function checkAnswer(btn, selected) {
+      const correct = questions[currentIndex].answer;
+      const allButtons = document.querySelectorAll(".option");
+      allButtons.forEach(button => {
+        button.disabled = true;
+        if (button.textContent === correct) button.classList.add("correct");
+        if (button.textContent === selected && selected !== correct)
+          button.classList.add("wrong");
+      });
+      if (selected === correct) score++;
+      setTimeout(() => {
+        currentIndex++;
+        if (currentIndex < questions.length) {
+          loadQuestion();
+        } else {
+          finishQuiz();
+        }
+      }, 1000);
     }
 
     function startTimer() {
       timer = 60;
       document.getElementById("timer").textContent = `Time left: ${timer}s`;
-      timerInterval = setInterval(() => {
+      interval = setInterval(() => {
         timer--;
         document.getElementById("timer").textContent = `Time left: ${timer}s`;
         if (timer <= 0) {
-          clearInterval(timerInterval);
-          showResults();
+          clearInterval(interval);
+          finishQuiz();
         }
       }, 1000);
     }
 
-    function showResults() {
-      clearInterval(timerInterval);
+    function finishQuiz() {
+      clearInterval(interval);
       document.getElementById("quizContainer").innerHTML = `
-        <div id="resultMessage">${userName}, your score: ${score} / 10</div>
-        <p>Thanks for participating! Refresh to play again.</p>
+        <div id="resultMessage">${userName}, your score: ${score} / ${questions.length}</div>
+        <p>Refresh the page to try again!</p>
       `;
+    }
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
     }
   </script>
 </body>
