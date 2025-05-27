@@ -5,115 +5,426 @@
   <title>Quiz Game</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
     * {
       box-sizing: border-box;
-    }
-    body {
-      font-family: "Segoe UI", sans-serif;
-      background: linear-gradient(to right, #f9f9f9, #e6f0ff);
       margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(-45deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Floating particles background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 2px, transparent 2px),
+        radial-gradient(circle at 75% 75%, rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 50px 50px, 25px 25px;
+      animation: float 20s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) translateX(0px); }
+      25% { transform: translateY(-20px) translateX(10px); }
+      50% { transform: translateY(0px) translateX(-10px); }
+      75% { transform: translateY(20px) translateX(5px); }
+    }
+
+    #quizContainer, #startScreen {
+      max-width: 650px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 
+        0 25px 50px rgba(0,0,0,0.15),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.1);
+      position: relative;
+      z-index: 1;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: slideIn 0.8s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(50px) scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    h2 {
+      color: white;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-align: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .welcome-text {
+      color: rgba(255,255,255,0.9);
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+      text-align: center;
+      font-weight: 400;
+    }
+
+    .question {
+      font-size: 1.4rem;
+      margin-bottom: 30px;
+      font-weight: 600;
+      color: white;
+      text-align: center;
+      line-height: 1.4;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .options-grid {
+      display: grid;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .option {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      margin: 0;
+      padding: 18px 24px;
+      width: 100%;
+      border-radius: 16px;
+      font-size: 1.05rem;
+      font-weight: 500;
+      cursor: pointer;
+      color: white;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      text-align: left;
+    }
+
+    .option::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .option:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255,255,255,0.4);
+    }
+
+    .option:hover::before {
+      left: 100%;
+    }
+
+    .option:active {
+      transform: translateY(-1px);
+    }
+
+    .option.correct {
+      background: linear-gradient(135deg, #00C9FF 0%, #92FE9D 100%) !important;
+      color: #2d5016 !important;
+      font-weight: 600;
+      border-color: rgba(255,255,255,0.5);
+      animation: correctPulse 0.6s ease-out;
+    }
+
+    .option.wrong {
+      background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%) !important;
+      color: white !important;
+      font-weight: 600;
+      border-color: rgba(255,255,255,0.5);
+      animation: wrongShake 0.6s ease-out;
+    }
+
+    @keyframes correctPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes wrongShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .stats-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+      gap: 20px;
+    }
+
+    #score, #timer {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 12px 20px;
+      border-radius: 12px;
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      border: 1px solid rgba(255,255,255,0.1);
+      flex: 1;
       text-align: center;
     }
-    h2 {
-      color: #333;
+
+    #timer {
+      background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+      animation: timerPulse 2s ease-in-out infinite;
     }
-    #quizContainer, #startScreen {
-      max-width: 600px;
-      margin: auto;
-      background: #fff;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-      margin-top: 40px;
-      transition: all 0.5s ease-in-out;
+
+    @keyframes timerPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.02); opacity: 0.9; }
     }
-    .question {
-      font-size: 1.25rem;
-      margin-bottom: 20px;
-      font-weight: bold;
+
+    .form-group {
+      margin-bottom: 25px;
     }
-    .option {
-      background-color: #f0f0f0;
-      border: none;
-      margin: 10px 0;
-      padding: 12px;
-      width: 100%;
-      border-radius: 10px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    .option:hover {
-      background-color: #e0eaff;
-    }
-    .option.correct {
-      background-color: #b4f3c0 !important;
-      color: #1e6b2d;
-      font-weight: bold;
-    }
-    .option.wrong {
-      background-color: #ffc9c9 !important;
-      color: #800;
-    }
-    #score, #timer {
-      font-size: 1rem;
-      margin-top: 20px;
-      color: #555;
-    }
+
     input, select {
-      padding: 10px;
+      padding: 16px 20px;
       font-size: 1rem;
-      width: 80%;
-      margin: 10px auto;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      color: white;
+      font-weight: 500;
+      transition: all 0.3s ease;
     }
+
+    input::placeholder {
+      color: rgba(255,255,255,0.6);
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: rgba(255,255,255,0.5);
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    select option {
+      background: #2a2a2a;
+      color: white;
+    }
+
     button {
-      padding: 12px 24px;
-      font-size: 1rem;
+      padding: 16px 32px;
+      font-size: 1.1rem;
       border: none;
-      border-radius: 8px;
-      background-color: #007bff;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      width: 100%;
       margin-top: 20px;
     }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
     button:hover {
-      background-color: #0056b3;
+      transform: translateY(-3px);
+      box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
     }
+
+    button:hover::before {
+      left: 100%;
+    }
+
+    button:active {
+      transform: translateY(-1px);
+    }
+
     #resultMessage {
-      font-size: 1.5rem;
-      margin-top: 20px;
-      color: #333;
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: white;
+      font-weight: 700;
+      text-align: center;
+      background: linear-gradient(135deg, #00C9FF 0%, #92FE9D 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: resultFadeIn 1s ease-out;
     }
+
+    @keyframes resultFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .result-text {
+      color: rgba(255,255,255,0.9);
+      font-size: 1.1rem;
+      text-align: center;
+      margin-top: 20px;
+    }
+
     .marquee {
       position: fixed;
       bottom: 0;
       width: 100%;
-      background: #111;
+      background: linear-gradient(90deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.9) 100%);
+      backdrop-filter: blur(10px);
       color: white;
-      padding: 10px 0;
-      font-size: 1em;
+      padding: 15px 0;
+      font-size: 1rem;
+      font-weight: 500;
       white-space: nowrap;
       overflow: hidden;
+      z-index: 1000;
+      border-top: 1px solid rgba(255,255,255,0.1);
     }
+
     .marquee span {
       display: inline-block;
       padding-left: 100%;
-      animation: marquee 10s linear infinite;
+      animation: marquee 15s linear infinite;
+      background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
+
     @keyframes marquee {
-      0% {transform: translateX(0);}
-      100% {transform: translateX(-100%);}
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
     }
-    @media (max-width: 600px) {
-      .question {
-        font-size: 1rem;
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
       }
+      
+      #quizContainer, #startScreen {
+        padding: 25px;
+        margin: 10px;
+      }
+      
+      h2 {
+        font-size: 2rem;
+      }
+      
+      .question {
+        font-size: 1.2rem;
+      }
+      
+      .option {
+        font-size: 1rem;
+        padding: 15px 20px;
+      }
+      
+      .stats-container {
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      #score, #timer {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h2 {
+        font-size: 1.8rem;
+      }
+      
+      .question {
+        font-size: 1.1rem;
+      }
+      
       .option {
         font-size: 0.95rem;
+        padding: 12px 16px;
       }
+      
+      #resultMessage {
+        font-size: 1.6rem;
+      }
+    }
+
+    /* Loading animation for transitions */
+    .fade-transition {
+      animation: fadeTransition 0.5s ease-in-out;
+    }
+
+    @keyframes fadeTransition {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
@@ -121,22 +432,26 @@
 
   <div id="startScreen">
     <h2>Welcome to the Quiz!</h2>
-    <p>Please enter your name and select language:</p>
-    <input type="text" id="userNameInput" placeholder="Enter your name" />
-    <br>
-    <select id="languageSelect">
-      <option value="en">English</option>
-      <option value="si">සිංහල</option>
-    </select>
-    <br>
+    <p class="welcome-text">Test your knowledge with our interactive quiz game</p>
+    <div class="form-group">
+      <input type="text" id="userNameInput" placeholder="Enter your name" />
+    </div>
+    <div class="form-group">
+      <select id="languageSelect">
+        <option value="en">English</option>
+        <option value="si">සිංහල</option>
+      </select>
+    </div>
     <button onclick="startQuiz()">Start Quiz</button>
   </div>
 
   <div id="quizContainer" style="display:none;">
     <div id="question" class="question"></div>
-    <div id="options"></div>
-    <div id="score"></div>
-    <div id="timer"></div>
+    <div id="options" class="options-grid"></div>
+    <div class="stats-container">
+      <div id="score"></div>
+      <div id="timer"></div>
+    </div>
   </div>
 
   <div class="marquee"><span>Artha Education Institute - Katulanda</span></div>
@@ -148,14 +463,24 @@
         { question: "Who wrote 'Hamlet'?", options: ["Charles Dickens", "William Shakespeare", "Leo Tolstoy", "Mark Twain"], answer: "William Shakespeare" },
         { question: "What is the biggest planet?", options: ["Earth", "Jupiter", "Mars", "Saturn"], answer: "Jupiter" },
         { question: "What is H2O?", options: ["Oxygen", "Hydrogen", "Water", "Salt"], answer: "Water" },
-        { question: "What color are bananas?", options: ["Green", "Yellow", "Red", "Blue"], answer: "Yellow" }
+        { question: "What color are bananas?", options: ["Green", "Yellow", "Red", "Blue"], answer: "Yellow" },
+        { question: "How many continents are there?", options: ["5", "6", "7", "8"], answer: "7" },
+        { question: "What is the smallest country in the world?", options: ["Monaco", "Vatican City", "San Marino", "Liechtenstein"], answer: "Vatican City" },
+        { question: "Who painted the Mona Lisa?", options: ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Michelangelo"], answer: "Leonardo da Vinci" },
+        { question: "What is the fastest land animal?", options: ["Lion", "Cheetah", "Leopard", "Tiger"], answer: "Cheetah" },
+        { question: "What is the chemical symbol for gold?", options: ["Go", "Gd", "Au", "Ag"], answer: "Au" }
       ],
       si: [
         { question: "ප්‍රංශයේ මූලස්ථානය කුමක්ද?", options: ["පැරීසිය", "ලන්ඩනය", "බර්ලින්", "මැඩ්රිඩ්"], answer: "පැරීසිය" },
         { question: "'හැම්ලට්' කවිය ලියූයේ කවුද?", options: ["චාල්ස් ඩිකන්ස්", "වියමම් ශේක්ස්පියර්", "ලියෝ ටෝල්ස්ටෝයි", "මාක් ට්වෙයින්"], answer: "වියමම් ශේක්ස්පියර්" },
         { question: "විශාලතම ග්‍රහලෝකය කුමක්ද?", options: ["පෘථිවිය", "ජුපිටරය", "අඟහරුවා", "ශනිය"], answer: "ජුපිටරය" },
         { question: "H2O යනු කුමක්ද?", options: ["ඔක්සිජන්", "ජලාණු", "ජලය", "ලුණු"], answer: "ජලය" },
-        { question: "කෙසෙල් පැහැය කුමක්ද?", options: ["කොළ", "කහ", "රතු", "නිල"], answer: "කහ" }
+        { question: "කෙසෙල් පැහැය කුමක්ද?", options: ["කොළ", "කහ", "රතු", "නිල"], answer: "කහ" },
+        { question: "මහාද්වීප කීයක් තිබේද?", options: ["5", "6", "7", "8"], answer: "7" },
+        { question: "ලෝකයේ කුඩාම රට කුමක්ද?", options: ["මොනාකෝ", "වතිකානු නගරය", "සැන් මරිනෝ", "ලීච්ටන්ස්ටයින්"], answer: "වතිකානු නගරය" },
+        { question: "මොනාලිසා චිත්‍රය අඳින්නේ කවුද?", options: ["වින්සන්ට් වැන් ගෝ", "පබ්ලෝ පිකාසෝ", "ලෙනාඩෝ ඩා වින්චි", "මයිකල්ඇන්ජලෝ"], answer: "ලෙනාඩෝ ඩා වින්චි" },
+        { question: "වේගවත්ම ප්‍රාණීයා කුමක්ද?", options: ["සිංහයා", "චීටා", "ගුවන්", "කොටියා"], answer: "චීටා" },
+        { question: "රන්වල රසායනික සංකේතය කුමක්ද?", options: ["Go", "Gd", "Au", "Ag"], answer: "Au" }
       ]
     };
 
@@ -169,11 +494,18 @@
     function startQuiz() {
       userName = document.getElementById("userNameInput").value.trim();
       const lang = document.getElementById("languageSelect").value;
-      if (!userName) return alert("Please enter your name.");
+      if (!userName) {
+        document.getElementById("userNameInput").style.borderColor = "#FF6B6B";
+        document.getElementById("userNameInput").focus();
+        return;
+      }
 
       questions = shuffle([...allQuestions[lang]]).slice(0, 10);
+      
       document.getElementById("startScreen").style.display = "none";
       document.getElementById("quizContainer").style.display = "block";
+      document.getElementById("quizContainer").classList.add("fade-transition");
+      
       score = 0;
       currentIndex = 0;
       loadQuestion();
@@ -185,6 +517,7 @@
       document.getElementById("question").textContent = `Q${currentIndex + 1}: ${q.question}`;
       const optionsDiv = document.getElementById("options");
       optionsDiv.innerHTML = "";
+      
       q.options.forEach(opt => {
         const btn = document.createElement("button");
         btn.className = "option";
@@ -192,19 +525,27 @@
         btn.onclick = () => checkAnswer(btn, opt);
         optionsDiv.appendChild(btn);
       });
+      
       document.getElementById("score").textContent = `Score: ${score}`;
+      
+      // Add transition animation
+      optionsDiv.classList.add("fade-transition");
     }
 
     function checkAnswer(btn, selected) {
       const correct = questions[currentIndex].answer;
       const allButtons = document.querySelectorAll(".option");
+      
       allButtons.forEach(button => {
         button.disabled = true;
+        button.style.cursor = "not-allowed";
         if (button.textContent === correct) button.classList.add("correct");
         if (button.textContent === selected && selected !== correct)
           button.classList.add("wrong");
       });
+      
       if (selected === correct) score++;
+      
       setTimeout(() => {
         currentIndex++;
         if (currentIndex < questions.length) {
@@ -212,15 +553,21 @@
         } else {
           finishQuiz();
         }
-      }, 1000);
+      }, 1500);
     }
 
     function startTimer() {
       timer = 60;
-      document.getElementById("timer").textContent = `Time left: ${timer}s`;
+      document.getElementById("timer").textContent = `Time: ${timer}s`;
       interval = setInterval(() => {
         timer--;
-        document.getElementById("timer").textContent = `Time left: ${timer}s`;
+        document.getElementById("timer").textContent = `Time: ${timer}s`;
+        
+        if (timer <= 10) {
+          document.getElementById("timer").style.background = "linear-gradient(135deg, #FF4757 0%, #FF3838 100%)";
+          document.getElementById("timer").style.animation = "timerPulse 0.5s ease-in-out infinite";
+        }
+        
         if (timer <= 0) {
           clearInterval(interval);
           finishQuiz();
@@ -230,9 +577,24 @@
 
     function finishQuiz() {
       clearInterval(interval);
+      const percentage = Math.round((score / questions.length) * 100);
+      let message = "";
+      
+      if (percentage >= 80) {
+        message = "Excellent! 🏆";
+      } else if (percentage >= 60) {
+        message = "Good job! 👏";
+      } else if (percentage >= 40) {
+        message = "Not bad! 👍";
+      } else {
+        message = "Keep trying! 💪";
+      }
+      
       document.getElementById("quizContainer").innerHTML = `
         <div id="resultMessage">${userName}, your score: ${score} / ${questions.length}</div>
-        <p>Refresh the page to try again!</p>
+        <div class="result-text">${message} You scored ${percentage}%</div>
+        <div class="result-text">Refresh the page to try again!</div>
+        <button onclick="location.reload()" style="margin-top: 30px;">Play Again</button>
       `;
     }
 
@@ -243,6 +605,15 @@
       }
       return arr;
     }
+
+    // Add some interactive effects
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add focus effects to input
+      const nameInput = document.getElementById("userNameInput");
+      nameInput.addEventListener('input', function() {
+        this.style.borderColor = "rgba(255,255,255,0.5)";
+      });
+    });
   </script>
 </body>
 </html>
